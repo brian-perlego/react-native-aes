@@ -41,7 +41,7 @@ import com.facebook.react.bridge.Callback;
 
 public class RCTAes extends ReactContextBaseJavaModule {
 
-    private static final String CIPHER_ALGORITHM = "AES_256/CBC/NoPadding";
+    private static final String CIPHER_ALGORITHM = "AES/CBC/NoPadding";
     public static final String HMAC_SHA_256 = "HmacSHA256";
     private static final String KEY_ALGORITHM = "AES_256";
 
