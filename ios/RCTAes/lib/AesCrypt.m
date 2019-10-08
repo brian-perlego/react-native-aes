@@ -93,9 +93,12 @@
     return [result base64EncodedStringWithOptions:0];
 }
 
-+ (NSString *) decrypt: (NSString *)cipherText key: (NSString *)key iv: (NSString *)iv {
++ (NSString *) decrypt: (NSString *)cipherText key: (NSString *)key iv: (NSString *)iv isImage: (BOOL)isImage {
     NSData *textData = [self fromHex:cipherText];
     NSData *result = [self AES128CBC:@"decrypt" data:textData key:key iv:iv];
+    if (isImage) {
+        return [result base64EncodedStringWithOptions:0];
+    }
     return [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding];
 }
 

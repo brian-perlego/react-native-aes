@@ -65,9 +65,9 @@ public class RCTAes extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void decrypt(String data, String pwd, String iv, Promise promise) {
+    public void decrypt(String data, String pwd, String iv, Boolean isImage, Promise promise) {
         try {
-            String strs = decrypt(data, pwd, iv);
+            String strs = decrypt(data, pwd, iv, isImage);
             promise.resolve(strs);
         } catch (Exception e) {
             promise.reject("-1", e.getMessage());
@@ -199,7 +199,7 @@ public class RCTAes extends ReactContextBaseJavaModule {
         return Base64.encodeToString(encrypted, Base64.NO_WRAP);
     }
 
-    private static String decrypt(String ciphertext, String hexKey, String hexIv) throws Exception {
+    private static String decrypt(String ciphertext, String hexKey, String hexIv, Boolean isImage) throws Exception {
         if(ciphertext == null || ciphertext.length() == 0) {
             return null;
         }
@@ -210,6 +210,9 @@ public class RCTAes extends ReactContextBaseJavaModule {
         Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, secretKey, hexIv == null ? emptyIvSpec : new IvParameterSpec(Hex.decode(hexIv)));
         byte[] decrypted = cipher.doFinal(Hex.decode(ciphertext));
+        if (isImage) {
+            return Base64.encodeToString(decrypted, Base64.NO_WRAP);
+        }
         return new String(decrypted, "UTF-8");
     }
 
