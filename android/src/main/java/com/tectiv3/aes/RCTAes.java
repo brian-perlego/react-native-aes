@@ -40,10 +40,10 @@ import com.facebook.react.bridge.Callback;
 
 public class RCTAes extends ReactContextBaseJavaModule {
 
-    private static final String CIPHER_ALGORITHM = "AES/CBC/PKCS7Padding";
+    private static final String CIPHER_ALGORITHM = "AES/CBC/NoPadding";
     public static final String HMAC_SHA_256 = "HmacSHA256";
     public static final String HMAC_SHA_512 = "HmacSHA512";
-    private static final String KEY_ALGORITHM = "AES";
+    private static final String KEY_ALGORITHM = "AES_256";
 
     public RCTAes(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -65,9 +65,9 @@ public class RCTAes extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void decrypt(String data, String pwd, String iv, Promise promise) {
+    public void decrypt(String data, String pwd, String iv, Boolean isImage, Promise promise) {
         try {
-            String strs = decrypt(data, pwd, iv);
+            String strs = decrypt(data, pwd, iv, isImage);
             promise.resolve(strs);
         } catch (Exception e) {
             promise.reject("-1", e.getMessage());
@@ -195,7 +195,7 @@ public class RCTAes extends ReactContextBaseJavaModule {
         return bytesToHex(sha_HMAC.doFinal(contentData));
     }
 
-    final static IvParameterSpec emptyIvSpec = new IvParameterSpec(new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00});
+    final static IvParameterSpec emptyIvSpec = new IvParameterSpec(new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
 
     private static String encrypt(String text, String hexKey, String hexIv) throws Exception {
         if (text == null || text.length() == 0) {
@@ -211,17 +211,20 @@ public class RCTAes extends ReactContextBaseJavaModule {
         return Base64.encodeToString(encrypted, Base64.NO_WRAP);
     }
 
-    private static String decrypt(String ciphertext, String hexKey, String hexIv) throws Exception {
+    private static String decrypt(String ciphertext, String hexKey, String hexIv, Boolean isImage) throws Exception {
         if(ciphertext == null || ciphertext.length() == 0) {
             return null;
         }
 
-        byte[] key = Hex.decode(hexKey);
+        byte[] key = hexKey.getBytes();
         SecretKey secretKey = new SecretKeySpec(key, KEY_ALGORITHM);
 
         Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, secretKey, hexIv == null ? emptyIvSpec : new IvParameterSpec(Hex.decode(hexIv)));
-        byte[] decrypted = cipher.doFinal(Base64.decode(ciphertext, Base64.NO_WRAP));
+        byte[] decrypted = cipher.doFinal(Hex.decode(ciphertext));
+        if (isImage) {
+            return Base64.encodeToString(decrypted, Base64.NO_WRAP);
+        }
         return new String(decrypted, "UTF-8");
     }
 

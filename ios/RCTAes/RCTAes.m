@@ -26,11 +26,11 @@ RCT_EXPORT_METHOD(encrypt:(NSString *)data key:(NSString *)key iv:(NSString *)iv
     }
 }
 
-RCT_EXPORT_METHOD(decrypt:(NSString *)base64 key:(NSString *)key iv:(NSString *)iv
+RCT_EXPORT_METHOD(decrypt:(NSString *)base64 key:(NSString *)key iv:(NSString *)iv isImage:(BOOL)isImage
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
     NSError *error = nil;
-    NSString *data = [AesCrypt decrypt:base64 key:key iv:iv];
+    NSString *data = [AesCrypt decrypt:base64 key:key iv:iv isImage:isImage];
     if (data == nil) {
         reject(@"decrypt_fail", @"Decrypt failed", error);
     } else {

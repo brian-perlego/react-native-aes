@@ -65,7 +65,7 @@
 
 + (NSData *) AES256CBC: (NSString *)operation data: (NSData *)data key: (NSString *)key iv: (NSString *)iv {
     //convert hex string to hex data
-    NSData *keyData = [self fromHex:key];
+    NSData *keyData = [key dataUsingEncoding:NSUTF8StringEncoding];
     NSData *ivData = [self fromHex:iv];
     //    NSData *keyData = [key dataUsingEncoding:NSUTF8StringEncoding];
     size_t numBytes = 0;
@@ -77,7 +77,7 @@
                                           kCCAlgorithmAES128,
                                           kCCOptionPKCS7Padding,
                                           keyData.bytes, kCCKeySizeAES256,
-                                          ivData.length ? ivData.bytes : nil,
+                                          ivData.bytes,
                                           data.bytes, data.length,
                                           buffer.mutableBytes,  buffer.length,
                                           &numBytes);
@@ -95,8 +95,12 @@
     return [result base64EncodedStringWithOptions:0];
 }
 
-+ (NSString *) decrypt: (NSString *)cipherText key: (NSString *)key iv: (NSString *)iv {
-    NSData *result = [self AES256CBC:@"decrypt" data:[[NSData alloc] initWithBase64EncodedString:cipherText options:0] key:key iv:iv];
++ (NSString *) decrypt: (NSString *)cipherText key: (NSString *)key iv: (NSString *)iv isImage: (BOOL)isImage {
+    NSData *textData = [self fromHex:cipherText];
+    NSData *result = [self AES128CBC:@"decrypt" data:textData key:key iv:iv];
+    if (isImage) {
+        return [result base64EncodedStringWithOptions:0];
+    }
     return [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding];
 }
 
