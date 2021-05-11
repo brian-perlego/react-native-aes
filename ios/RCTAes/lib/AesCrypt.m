@@ -97,7 +97,7 @@
 
 + (NSString *) decrypt: (NSString *)cipherText key: (NSString *)key iv: (NSString *)iv isImage: (BOOL)isImage {
     NSData *textData = [self fromHex:cipherText];
-    NSData *result = [self AES128CBC:@"decrypt" data:textData key:key iv:iv];
+    NSData *result = [self AES256CBC:@"decrypt" data:textData key:key iv:iv];
     if (isImage) {
         return [result base64EncodedStringWithOptions:0];
     }
